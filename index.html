@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UBV</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=IM+Fell+English:ital@0;1&family=Cinzel+Decorative:wght@400;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<style>
+:root{--parch:#f0e6cc;--parch2:#e2d4b0;--parch3:#c9b99a;--ink:#1e1508;--ink2:#3a2a10;--bronze:#8b6914;--bronze2:#c49a2a;--gold:#d4a017;--rust:#7a3b1e;--stone:#6b5c45;--moss:#3d5c32;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'IM Fell English',serif;background:#0e0a04;color:var(--ink);min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.035;}
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+#page-home{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(139,105,20,.18) 0%,transparent 70%),radial-gradient(ellipse 60% 80% at 80% 100%,rgba(122,59,30,.12) 0%,transparent 60%),linear-gradient(180deg,#0e0a04 0%,#160f06 100%);padding:40px 20px;}
+#page-home.active{display:flex;}
+.logo-main{font-family:'Cinzel Decorative',serif;font-weight:900;font-size:clamp(2.4rem,8vw,5rem);color:var(--gold);letter-spacing:4px;text-shadow:0 0 60px rgba(212,160,23,.25),0 2px 0 rgba(0,0,0,.8);line-height:1;display:block;text-align:center;}
+.logo-sub{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:5px;color:var(--parch3);opacity:.6;margin-top:14px;display:block;text-align:center;}
+.home-logo-area{margin-bottom:52px;}
+.divider-g{display:flex;align-items:center;gap:14px;margin:20px auto;max-width:320px;}
+.dg-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4;}
+.dg-gem{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);opacity:.7;box-shadow:0 0 8px var(--gold);}
+.home-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:860px;width:100%;}
+@media(max-width:680px){.home-cards{grid-template-columns:1fr;max-width:360px;}}
+.home-card{background:linear-gradient(160deg,rgba(255,255,255,.04) 0%,transparent 100%);border:1px solid rgba(139,105,20,.45);border-radius:2px;padding:36px 20px 30px;text-align:center;cursor:pointer;position:relative;overflow:hidden;transition:transform .35s,border-color .35s,box-shadow .35s;animation:fadeUp .7s ease both;}
+.home-card:nth-child(1){animation-delay:.1s;}.home-card:nth-child(2){animation-delay:.25s;}.home-card:nth-child(3){animation-delay:.4s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+.home-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(212,160,23,.07) 0%,transparent 55%);opacity:0;transition:opacity .35s;}
+.home-card:hover::before{opacity:1;}
+.home-card:hover{border-color:var(--gold);transform:translateY(-6px);box-shadow:0 16px 48px rgba(212,160,23,.18),0 2px 0 var(--gold);}
+.home-card::after{content:'';position:absolute;top:6px;left:6px;right:6px;bottom:6px;border:1px solid rgba(212,160,23,.15);border-radius:1px;pointer-events:none;transition:border-color .35s;}
+.home-card:hover::after{border-color:rgba(212,160,23,.35);}
+.hc-icon{font-size:2.8rem;display:block;margin-bottom:18px;}
+.hc-roman{font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:4px;color:var(--bronze2);opacity:.6;display:block;margin-bottom:8px;}
+.hc-title{font-family:'Cinzel',serif;font-weight:600;font-size:1rem;color:var(--parch);letter-spacing:1.5px;line-height:1.3;}
+.hc-desc{font-style:italic;font-size:.8rem;color:var(--parch3);margin-top:10px;opacity:.7;line-height:1.5;}
+.home-footer{margin-top:52px;font-family:'Cinzel',serif;font-size:.6rem;letter-spacing:4px;color:var(--bronze);opacity:.4;text-align:center;}
+.parch-page{background:linear-gradient(170deg,#f4ebd6 0%,#ecdec4 40%,#e0d2b2 100%);min-height:100vh;}
+.page-header{background:linear-gradient(180deg,#1a1006 0%,#0e0a04 100%);padding:16px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid rgba(139,105,20,.5);position:sticky;top:0;z-index:100;}
+.back-btn{background:transparent;border:1px solid rgba(212,160,23,.4);color:var(--gold);font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:2px;padding:7px 14px;cursor:pointer;border-radius:1px;transition:all .2s;flex-shrink:0;}
+.back-btn:hover{background:rgba(212,160,23,.1);border-color:var(--gold);}
+.page-header-title{font-family:'Cinzel Decorative',serif;font-size:clamp(.8rem,2.5vw,1.1rem);color:var(--gold);letter-spacing:3px;text-shadow:0 0 20px rgba(212,160,23,.3);}
+.page-content{padding:36px clamp(14px,4vw,44px) 60px;max-width:860px;margin:0 auto;}
+.section-title{font-family:'Cinzel',serif;font-weight:900;font-size:1.4rem;color:var(--rust);letter-spacing:3px;text-align:center;margin-bottom:6px;text-shadow:1px 1px 0 rgba(255,255,255,.5);}
+.section-intro{text-align:center;font-style:italic;color:var(--stone);font-size:.93rem;margin-bottom:30px;line-height:1.75;}
+.tool-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:28px;}
+@media(max-width:500px){.tool-grid{grid-template-columns:1fr;}}
+.tool-btn{background:linear-gradient(160deg,#2e2010 0%,#1a1208 100%);border:1px solid rgba(139,105,20,.5);border-radius:2px;padding:22px 14px;text-align:center;cursor:pointer;transition:all .3s;position:relative;}
+.tool-btn.real-btn:hover,.tool-btn.real-btn.active-tool{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 8px 24px rgba(212,160,23,.2);}
+.tool-btn.real-btn.active-tool{box-shadow:0 0 0 1px var(--gold) inset,0 8px 24px rgba(212,160,23,.2);}
+.tool-btn:not(.real-btn):hover{border-color:rgba(212,160,23,.4);transform:translateY(-2px);}
+.tb-icon{font-size:2rem;display:block;margin-bottom:10px;}
+.tb-label{font-family:'Cinzel',serif;font-size:.8rem;color:var(--parch);letter-spacing:2px;}
+.tb-note{font-style:italic;font-size:.68rem;color:var(--parch3);margin-top:6px;opacity:.6;}
+.coin-panel{display:none;background:rgba(240,230,204,.96);border:2px solid var(--bronze);border-radius:2px;padding:26px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.15);animation:slideIn .4s ease;}
+.coin-panel.active{display:block;}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.parch-lines{position:absolute;inset:0;pointer-events:none;border-radius:2px;background-image:repeating-linear-gradient(0deg,transparent,transparent 27px,rgba(139,105,20,.08) 27px,rgba(139,105,20,.08) 28px);}
+.coin-inner{position:relative;z-index:1;}
+.coin-panel-deco{position:absolute;color:var(--bronze);opacity:.4;font-size:1rem;}
+.sub-title{font-family:'Cinzel',serif;font-weight:700;font-size:.95rem;color:var(--rust);letter-spacing:3px;text-align:center;margin-bottom:18px;}
+.mode-row{display:flex;gap:10px;justify-content:center;margin-bottom:16px;}
+.mode-btn{background:rgba(42,31,14,.1);border:1px solid var(--bronze);color:var(--ink2);padding:7px 20px;font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:1.5px;cursor:pointer;border-radius:1px;transition:all .2s;}
+.mode-btn.active{background:var(--rust);color:var(--parch);border-color:var(--rust);}
+.cam-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:16px;}
+#webcam-container{border:2px solid var(--bronze);border-radius:2px;overflow:hidden;background:#1a1208;min-width:240px;min-height:180px;display:flex;align-items:center;justify-content:center;box-shadow:4px 4px 0 rgba(42,31,14,.2);}
+#webcam-container canvas{display:block;}
+.cam-placeholder{text-align:center;color:var(--parch3);padding:30px;opacity:.5;}
+.cam-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.upload-zone{border:2px dashed var(--bronze);border-radius:2px;padding:26px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(42,31,14,.04);margin-bottom:12px;}
+.upload-zone:hover{border-color:var(--rust);background:rgba(122,59,30,.06);}
+.upload-zone p{font-style:italic;color:var(--stone);font-size:.86rem;}
+#file-input{display:none;}
+#img-preview{max-width:250px;display:none;margin:0 auto 10px;border:2px solid var(--bronze);border-radius:2px;box-shadow:4px 4px 0 rgba(42,31,14,.15);}
+#label-container{margin:16px 0 4px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.bar-lbl{font-family:'Cinzel',serif;font-size:.7rem;color:var(--ink2);width:128px;flex-shrink:0;letter-spacing:.5px;}
+.bar-track{flex:1;height:13px;background:rgba(42,31,14,.1);border:1px solid var(--bronze);border-radius:1px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--bronze2));transition:width .3s ease;}
+.bar-pct{font-family:'Cinzel',serif;font-size:.7rem;color:var(--rust);width:34px;text-align:right;}
+.status-line{text-align:center;font-style:italic;color:var(--stone);font-size:.8rem;margin-top:2px;}
+#coin-info-box{display:none;margin-top:20px;background:rgba(42,31,14,.07);border:1px solid var(--bronze);border-left:4px solid var(--rust);border-radius:1px;padding:18px 20px;}
+.info-box-title{font-family:'Cinzel',serif;font-size:.78rem;color:var(--rust);letter-spacing:2px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.info-box-body{font-size:.86rem;color:var(--ink2);line-height:1.85;}
+.info-box-body ol{padding-left:18px;margin-top:8px;}
+.info-box-body li{margin-bottom:8px;}
+.info-box-body strong{color:var(--rust);font-style:normal;}
+.discover-btn{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:linear-gradient(160deg,var(--ink) 0%,#2a1a08 100%);color:var(--gold);border:1px solid rgba(212,160,23,.4);padding:10px 20px;font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:2px;cursor:not-allowed;border-radius:1px;transition:all .2s;}
+.discover-btn:hover{border-color:var(--gold);box-shadow:0 4px 16px rgba(212,160,23,.15);}
+.anc-btn{background:linear-gradient(160deg,var(--rust) 0%,#5c2a12 100%);color:var(--parch);border:1px solid rgba(212,160,23,.35);border-radius:1px;padding:9px 20px;font-family:'Cinzel',serif;font-size:.73rem;letter-spacing:2px;cursor:pointer;transition:all .22s;}
+.anc-btn:hover{background:linear-gradient(160deg,#9a4b26 0%,var(--rust) 100%);transform:translateY(-1px);box-shadow:0 4px 14px rgba(122,59,30,.35);}
+.anc-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.formula-card{background:rgba(42,31,14,.08);border:1px solid rgba(139,105,20,.4);border-left:4px solid var(--bronze);padding:16px 20px;margin-bottom:22px;border-radius:1px;}
+.formula-card p{font-style:italic;color:var(--ink2);font-size:.88rem;line-height:1.8;}
+.formula-card strong{font-style:normal;color:var(--rust);font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:1px;}
+.dim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px;}
+@media(max-width:500px){.dim-grid{grid-template-columns:1fr;}}
+.dim-field label{display:block;font-family:'Cinzel',serif;font-size:.68rem;color:var(--stone);letter-spacing:2.5px;margin-bottom:6px;}
+.dim-field input{width:100%;background:rgba(42,31,14,.08);border:1px solid var(--bronze);border-bottom:2px solid var(--bronze);border-radius:1px;padding:10px 12px;font-family:'IM Fell English',serif;font-size:1.1rem;color:var(--ink);outline:none;text-align:center;transition:border-color .2s;}
+.dim-field input:focus{border-color:var(--rust);}
+.cat-result{display:none;margin-top:28px;padding:26px;background:rgba(240,230,204,.96);border:2px solid var(--bronze);border-radius:2px;text-align:center;position:relative;animation:slideIn .4s ease;box-shadow:0 8px 24px rgba(0,0,0,.1);}
+.cat-num{font-family:'Cinzel Decorative',serif;font-weight:900;font-size:3.5rem;color:var(--rust);line-height:1;text-shadow:2px 2px 0 rgba(122,59,30,.15);}
+.cat-lbl{font-family:'Cinzel',serif;font-size:.9rem;letter-spacing:3px;margin:10px 0 4px;}
+.cat-detail{font-style:italic;color:var(--stone);font-size:.84rem;line-height:1.6;}
+.cat-perim{font-family:'Cinzel',serif;font-size:1.05rem;color:var(--ink2);margin-top:12px;}
+.team-badge{display:flex;flex-direction:column;align-items:center;margin:0 auto 34px;max-width:340px;}
+.team-emblem{width:90px;height:90px;background:linear-gradient(135deg,var(--rust) 0%,var(--bronze) 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.8rem;border:3px solid var(--gold);box-shadow:0 0 30px rgba(212,160,23,.25);margin-bottom:14px;}
+.team-name{font-family:'Cinzel Decorative',serif;font-weight:900;font-size:1.6rem;color:var(--rust);letter-spacing:4px;}
+.team-org{font-family:'Cinzel',serif;font-size:.68rem;color:var(--stone);letter-spacing:3px;margin-top:6px;opacity:.8;}
+.info-block{margin-bottom:28px;}
+.info-h{font-family:'Cinzel',serif;font-weight:600;font-size:.78rem;color:var(--rust);letter-spacing:3px;border-bottom:1px solid rgba(139,105,20,.4);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.info-h::before{content:'⊞';color:var(--bronze);font-size:.9rem;}
+.info-p{font-size:.92rem;color:var(--ink2);line-height:1.9;}
+.info-p em{color:var(--rust);font-style:normal;font-weight:bold;}
+.tech-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.pill{background:rgba(42,31,14,.1);border:1px solid var(--bronze);padding:4px 14px;border-radius:1px;font-family:'Cinzel',serif;font-size:.63rem;color:var(--stone);letter-spacing:1px;}
+.quote-block{background:rgba(42,31,14,.06);border-left:4px solid var(--gold);padding:16px 20px;margin:20px 0;border-radius:1px;}
+.quote-block p{font-style:italic;font-size:.98rem;color:var(--ink2);line-height:1.7;}
+.quote-block cite{display:block;margin-top:8px;font-family:'Cinzel',serif;font-size:.63rem;color:var(--stone);letter-spacing:2px;font-style:normal;opacity:.8;}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:var(--parch);padding:10px 26px;border:1px solid var(--gold);font-family:'Cinzel',serif;font-size:.73rem;letter-spacing:1px;border-radius:1px;opacity:0;transition:all .4s ease;z-index:10000;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#0e0a04;}::-webkit-scrollbar-thumb{background:var(--bronze);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="home-logo-area">
+    <span class="logo-main">UBV </span>
+    <div class="divider-g"><div class="dg-line"></div><div class="dg-gem"></div><div class="dg-line"></div></div>
+    <span class="logo-sub">Fatti aiutare dall'IA nei tuoi scavi</span>
+  </div>
+  <div class="home-cards">
+    <div class="home-card" onclick="nav('recognizer')">
+      <span class="hc-icon">🔍</span>
+      <span class="hc-roman">· I ·</span>
+      <div class="hc-title">Riconoscimento<br>del Reperto</div>
+      <div class="hc-desc">Identifica la tipologia del tuo reperto con l'intelligenza artificiale</div>
+    </div>
+    <div class="home-card" onclick="nav('measures')">
+      <span class="hc-icon">📐</span>
+      <span class="hc-roman">· II ·</span>
+      <div class="hc-title">Smistamento</div>
+      <div class="hc-desc">In base alla grandezza scopri dove devi smistare il reperto</div>
+    </div>
+    <div class="home-card" onclick="nav('team')">
+      <span class="hc-icon">⚙️</span>
+      <span class="hc-roman">· III ·</span>
+      <div class="hc-title">Il Nostro Progetto<br>e la Nostra Squadra</div>
+      <div class="hc-desc">Scopri la missione e il team UBV del Liceo Volta di Castel San Giovanni (pc)</div>
+    </div>
+  </div>
+  <div class="home-footer">UBV · LICEO VOLTA · CASTEL SAN GIOVANNI</div>
+</div>
+
+
+<!-- RICONOSCITORE -->
+<div class="page parch-page" id="page-recognizer">
+  <div class="page-header">
+    <button class="back-btn" onclick="nav('home')">&#8592; INDIETRO</button>
+    <div class="page-header-title">RICONOSCIMENTO DEL REPERTO</div>
+  </div>
+  <div class="page-content">
+    <h2 class="section-title">SCOPRI IL PERIODO STORICO</h2>
+    <p class="section-intro">Scopri a che periodo appartiene il reperto da te trovato.<br>Seleziona tipologia di reperto per avviare l'analisi.</p>
+    <div class="tool-grid">
+      <div class="tool-btn real-btn" id="btn-coins" onclick="toggleCoinPanel()">
+        <span class="tb-icon">&#x1F4B0;</span>
+        <div class="tb-label">MONETE</div>
+        <div class="tb-note">Riconoscimento con A.I.</div>
+      </div>
+      <div class="tool-btn" onclick="showToast('Modulo in fase di sviluppo')">
+        <span class="tb-icon">&#127994;</span>
+        <div class="tb-label">CERAMICHE</div>
+        <div class="tb-note">Prossimamente</div>
+      </div>
+      <div class="tool-btn" onclick="showToast('Modulo in fase di sviluppo')">
+        <span class="tb-icon">&#x1F531;</span>
+        <div class="tb-label">Iconografia</div>
+        <div class="tb-note">Prossimamente</div>
+      </div>
+      <div class="tool-btn" onclick="showToast('Modulo in fase di sviluppo')">
+        <span class="tb-icon">&#9876;</span>
+        <div class="tb-label">altro</div>
+        <div class="tb-note">Prossimamente</div>
+      </div>
+    </div>
+    <div class="coin-panel" id="coin-panel">
+      <div class="parch-lines"></div>
+      <div class="coin-inner">
+        <div class="sub-title">CLASSIFICATORE NUMISMATICO</div>
+        <div class="mode-row">
+          <button class="mode-btn active" id="mbtn-cam" onclick="setMode('cam')">Webcam</button>
+          <button class="mode-btn" id="mbtn-img" onclick="setMode('img')">Immagine</button>
+        </div>
+        <div id="mode-cam">
+          <div class="cam-wrap">
+            <div id="webcam-container">
+              <div class="cam-placeholder">
+                <div style="font-size:2rem">&#128247;</div>
+                <p style="font-size:.78rem;margin-top:6px;">Premi AVVIA per iniziare</p>
+              </div>
+            </div>
+            <div class="cam-btns">
+              <button class="anc-btn" id="btn-start" onclick="startCam()">AVVIA WEBCAM</button>
+              <button class="anc-btn" id="btn-stop" onclick="stopCam()" disabled style="background:linear-gradient(160deg,#2e2010,#1a1208)">FERMA</button>
+            </div>
+          </div>
+        </div>
+        <div id="mode-img" style="display:none;">
+          <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+            <div style="font-size:2rem;margin-bottom:8px;">&#127994;</div>
+            <p>Clicca per caricare un'immagine della moneta</p>
+            <p style="font-size:.68rem;margin-top:4px;opacity:.55;">JPG &middot; PNG &middot; WEBP</p>
+          </div>
+          <input type="file" id="file-input" accept="image/*" onchange="handleUpload(event)">
+          <div style="text-align:center;">
+            <img id="img-preview" alt="Anteprima moneta">
+            <br>
+            <button class="anc-btn" id="btn-analyze" onclick="analyzeImg()" disabled style="margin-top:10px;">ANALIZZA MONETA</button>
+          </div>
+        </div>
+        <div id="label-container"></div>
+        <div class="status-line" id="status-line">In attesa</div>
+        <div id="coin-info-box">
+          <div class="info-box-title" id="info-title">Come riconoscere questa moneta</div>
+          <div class="info-box-body" id="info-body"></div>
+          <div style="text-align:center;margin-top:16px;">
+            <button class="discover-btn" title="Funzione in sviluppo">SCOPRI SE CI SONO MODELLI SIMILI E DOVE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3 MISURE -->
+<div class="page parch-page" id="page-measures">
+  <div class="page-header">
+    <button class="back-btn" onclick="nav('home')">&#8592; INDIETRO</button>
+    <div class="page-header-title">CLASSIFICAZIONE PER SMISTAMENTO</div>
+  </div>
+  <div class="page-content">
+    <h2 class="section-title">Smistamento</h2>
+    <p class="section-intro">Inserisci le tre dimensioni in centimetri (consideralo come se fosse un paralellepipedo).<br>Il sistema calcolerà il perimetro e assegnerà la categoria di stoccaggio.</p>
+    <div class="formula-card">
+      <p><strong>FORMULA</strong><br>P = 4 &middot; (a + b + c) &nbsp;&mdash;&nbsp; dove a, b, c sono le dimensioni del parallelepipedo</p>
+      <p style="margin-top:10px;"><strong>SOGLIE:</strong> &nbsp; P &lt; 10 &rarr; <strong style="color:var(--moss)">CAT. I</strong> &nbsp;|&nbsp; 10 &le; P &lt; 20 &rarr; <strong style="color:var(--bronze)">CAT. II</strong> &nbsp;|&nbsp; P &ge; 20 &rarr; <strong style="color:var(--rust)">CAT. III</strong></p>
+    </div>
+    <div class="dim-grid">
+      <div class="dim-field"><label>LUNGHEZZA &middot; a</label><input type="number" id="da" placeholder="0.0" min="0" step="0.1" oninput="calcCat()"></div>
+      <div class="dim-field"><label>LARGHEZZA &middot; b</label><input type="number" id="db" placeholder="0.0" min="0" step="0.1" oninput="calcCat()"></div>
+      <div class="dim-field"><label>ALTEZZA &middot; c</label><input type="number" id="dc" placeholder="0.0" min="0" step="0.1" oninput="calcCat()"></div>
+    </div>
+    <div style="text-align:center;">
+      <button class="anc-btn" onclick="calcCat()" style="padding:12px 40px;font-size:.82rem;">CALCOLA CATEGORIA</button>
+    </div>
+    <div class="cat-result" id="cat-result">
+      <div class="cat-num" id="cat-num">I</div>
+      <div class="cat-lbl" id="cat-lbl">CATEGORIA</div>
+      <div class="cat-detail" id="cat-detail"></div>
+      <div class="cat-perim" id="cat-perim">P = cm</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4 TEAM -->
+<div class="page parch-page" id="page-team">
+  <div class="page-header">
+    <button class="back-btn" onclick="nav('home')">&#8592; INDIETRO</button>
+    <div class="page-header-title">IL NOSTRO PROGETTO</div>
+  </div>
+  <div class="page-content">
+    <h2 class="section-title">UBV &middot; IL TEAM</h2>
+    <p class="section-intro">Liceo Volta &middot; Castel San Giovanni</p>
+    <div class="team-badge">
+      <div class="team-emblem">&#129302;</div>
+      <div class="team-name">UBV</div>
+      <div class="team-org">SQUADRA DI ROBOTICA &middot; LICEO VOLTA</div>
+    </div>
+    <div class="quote-block">
+      <p>"La tecnologia al servizio della storia: rendere accessibile la conoscenza del passato attraverso l'intelligenza artificiale."</p>
+      <cite>&mdash; UBV Team, 2024</cite>
+    </div>
+    <div class="info-block">
+      <div class="info-h">Chi Siamo</div>
+      <p class="info-p">Questo progetto e' stato creato dagli <em>UBV</em>, una squadra di robotica del Liceo Volta di Castel San Giovanni. Siamo un gruppo di studenti appassionati di tecnologia, programmazione e innovazione, con un forte interesse per il patrimonio culturale e storico del nostro territorio.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-h">La Missione</div>
+      <p class="info-p">Il progetto <em>Archaeo Numismatica</em> nasce con lo scopo di aiutare i siti archeologici a velocizzare il riconoscimento e lo stoccaggio dei reperti numismatici. Grazie all'impiego del machine learning e di interfacce digitali intuitive, vogliamo rendere piu' rapido e accurato il lavoro di catalogazione, un processo che tradizionalmente richiede esperti specializzati e molto tempo sul campo.<br><br>La nostra visione e' un futuro in cui tecnologia e archeologia collaborano: dove un operatore puo' semplicemente mostrare una moneta alla fotocamera e ricevere in pochi secondi informazioni preziose sulla sua origine e periodo storico.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-h">Il Sistema</div>
+      <p class="info-p">L'applicazione e' composta da tre moduli integrati:<br><br>Il <em>Riconoscitore Numismatico</em>, basato su un modello di visione artificiale addestrato con Teachable Machine di Google, che classifica le monete in quattro categorie: greche, romane, medievali e altre.<br><br>Il <em>Classificatore Morfologico</em>, che calcola il perimetro di un parallelepipedo e assegna il contenitore a una delle tre categorie dimensionali per la fase di stoccaggio fisico.<br><br>La <em>Scheda di Progetto</em>, che documenta la metodologia, le tecnologie e il team.</p>
+    </div>
+    <div class="info-block">
+      <div class="info-h">Tecnologie Utilizzate</div>
+      <div class="tech-row">
+        <span class="pill">Teachable Machine</span>
+        <span class="pill">TensorFlow.js</span>
+        <span class="pill">HTML5 &middot; CSS3</span>
+        <span class="pill">JavaScript ES6+</span>
+        <span class="pill">WebRTC &middot; Webcam API</span>
+        <span class="pill">Reti Neurali CNN</span>
+      </div>
+    </div>
+    <div class="info-block">
+      <div class="info-h">Sviluppi Futuri</div>
+      <p class="info-p">Nei prossimi mesi il team UBV prevede di espandere il sistema con nuovi moduli per ceramiche, monili e armi, rendendo la piattaforma uno strumento completo per la prima catalogazione sul campo. L'obiettivo a lungo termine e' integrare il sistema con database storici nazionali per confronto automatico e localizzazione geografica dei reperti.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+function nav(dest) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var map = {home:'page-home',recognizer:'page-recognizer',measures:'page-measures',team:'page-team'};
+  var el = document.getElementById(map[dest]);
+  if(el){ el.classList.add('active'); window.scrollTo(0,0); }
+  if(dest !== 'recognizer') stopCam();
+  if(dest === 'recognizer' && !modelInitStarted){ modelInitStarted=true; loadModel(); }
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+var MODEL_URL = 'https://teachablemachine.withgoogle.com/models/BnQQuMuui/';
+var model, webcam, maxPredictions, animFrame;
+var modelLoaded = false, modelInitStarted = false;
+var currentMode = 'cam', uploadedImg = null, lastTopClass = '';
+
+async function loadModel() {
+  document.getElementById('status-line').textContent = 'Caricamento modello A.I. in corso...';
+  try {
+    model = await tmImage.load(MODEL_URL+'model.json', MODEL_URL+'metadata.json');
+    maxPredictions = model.getTotalClasses();
+    modelLoaded = true;
+    document.getElementById('status-line').textContent = 'Modello pronto - ' + maxPredictions + ' classi';
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('btn-analyze').disabled = false;
+    buildBars();
+    showToast('Modello A.I. caricato con successo');
+  } catch(e) {
+    document.getElementById('status-line').textContent = 'Errore nel caricamento del modello';
+    showToast('Errore caricamento modello');
+    console.error(e);
+  }
+}
+
+function buildBars() {
+  var c = document.getElementById('label-container'); c.innerHTML='';
+  for(var i=0;i<maxPredictions;i++){
+    c.innerHTML+='<div class="bar-row"><span class="bar-lbl" id="lbl-'+i+'">-</span><div class="bar-track"><div class="bar-fill" id="fill-'+i+'" style="width:0%"></div></div><span class="bar-pct" id="pct-'+i+'">0%</span></div>';
+  }
+}
+
+function updateBars(preds) {
+  var topClass='', topProb=0;
+  preds.forEach(function(p,i){
+    var pct=Math.round(p.probability*100);
+    document.getElementById('lbl-'+i).textContent=p.className;
+    document.getElementById('fill-'+i).style.width=pct+'%';
+    document.getElementById('pct-'+i).textContent=pct+'%';
+    if(p.probability>topProb){topProb=p.probability;topClass=p.className;}
+  });
+  return {topClass:topClass,topProb:topProb};
+}
+
+function showCoinInfo(topClass, topProb) {
+  var box=document.getElementById('coin-info-box');
+  var body=document.getElementById('info-body');
+  var title=document.getElementById('info-title');
+  var cls=topClass.toLowerCase();
+  var isRom=cls.indexOf('roman')>=0; var isGre=cls.indexOf('grec')>=0; var isMed=cls.indexOf('mediev')>=0;
+  if((!isRom&&!isGre&&!isMed)||topProb<0.3){box.style.display='none';return;}
+  box.style.display='block';
+  if(isRom){
+    title.textContent='Come riconoscere le monete romane antiche';
+    body.innerHTML='<ol><li><strong>Materiale</strong> - Controlla se e bronzo, argento o oro. Ogni metallo aveva un uso diverso e puo dare indicazioni sul periodo e sul valore.</li><li><strong>Dritto (averso)</strong> - Osserva il volto raffigurato e le iscrizioni. Spesso ce il ritratto dell imperatore o di una divinita con il suo nome o titolo.</li><li><strong>Rovescio</strong> - Guarda i simboli, le figure o le scene rappresentate. Questi dettagli aiutano a capire il contesto storico e il tipo di moneta.</li><li><strong>Dimensioni e peso</strong> - Misurare il diametro e il peso puo aiutarti a confrontarla con cataloghi e sapere se e autentica o appartiene a una certa serie.</li></ol>';
+  } else if(isGre){
+    title.textContent='Come riconoscere le monete greche';
+    body.innerHTML='<ol><li><strong>Materiale</strong> - Le monete greche erano spesso in argento o bronzo; alcune rare in oro. Il metallo puo aiutare a capire l importanza della moneta e la citta che l ha coniata.</li><li><strong>Dritto (averso)</strong> - Di solito raffigura il dio, la dea o l eroe protettore della citta, spesso con dettagli realistici o simbolici. Le iscrizioni indicano la citta o il sovrano.</li><li><strong>Rovescio</strong> - Mostra simboli della citta o immagini mitologiche (animali, navi, strumenti), che aiutano a riconoscere l origine e il periodo della moneta.</li><li><strong>Dimensioni, peso e stile</strong> - Le citta greche avevano standard diversi; il confronto con cataloghi e fondamentale. Lo stile artistico puo indicare se la moneta e arcaica, classica o ellenistica.</li></ol>';
+  } else if(isMed){
+    title.textContent='Come riconoscere le monete medievali';
+    body.innerHTML='<ol><li><strong>Materiale</strong> - Spesso argento, rame o bronzo; l oro era riservato a monete di grande valore. Il metallo indica il tipo di moneta e la sua importanza economica.</li><li><strong>Dritto (averso)</strong> - Di solito mostra il sovrano, il re o il principe, con il suo nome o titolo. A volte e presente un simbolo religioso, come una croce.</li><li><strong>Rovescio</strong> - Spesso simboli religiosi (croci, santi), stemmi araldici o marchi di citta/zecca. Questi aiutano a identificare il luogo e il periodo di coniazione.</li><li><strong>Forma, dimensioni e peso</strong> - Le monete medievali erano meno uniformi. Controllare diametro, peso e dettagli stilistici aiuta a distinguerle tra diverse zecche o regioni.</li></ol>';
+  }
+}
+
+function toggleCoinPanel() {
+  var panel=document.getElementById('coin-panel');
+  var btn=document.getElementById('btn-coins');
+  var isOpen=panel.classList.toggle('active');
+  btn.classList.toggle('active-tool',isOpen);
+  if(isOpen&&!modelInitStarted){modelInitStarted=true;loadModel();}
+  if(!isOpen) stopCam();
+}
+
+function setMode(m) {
+  currentMode=m; stopCam();
+  document.getElementById('mbtn-cam').classList.toggle('active',m==='cam');
+  document.getElementById('mbtn-img').classList.toggle('active',m==='img');
+  document.getElementById('mode-cam').style.display=m==='cam'?'':'none';
+  document.getElementById('mode-img').style.display=m==='img'?'':'none';
+}
+
+async function startCam() {
+  if(!modelLoaded){showToast('Modello in caricamento, attendi...');return;}
+  try {
+    webcam=new tmImage.Webcam(300,270,true);
+    await webcam.setup(); await webcam.play();
+    document.getElementById('btn-start').disabled=true;
+    document.getElementById('btn-stop').disabled=false;
+    var wc=document.getElementById('webcam-container'); wc.innerHTML=''; wc.appendChild(webcam.canvas);
+    document.getElementById('status-line').textContent='Analisi in corso...';
+    loopCam();
+  } catch(e){ showToast('Impossibile accedere alla webcam'); console.error(e); }
+}
+
+async function loopCam() {
+  if(!webcam) return;
+  webcam.update();
+  var preds=await model.predict(webcam.canvas);
+  var res=updateBars(preds);
+  if(res.topClass!==lastTopClass){lastTopClass=res.topClass;showCoinInfo(res.topClass,res.topProb);}
+  animFrame=requestAnimationFrame(loopCam);
+}
+
+function stopCam() {
+  if(animFrame) cancelAnimationFrame(animFrame);
+  if(webcam){webcam.stop();webcam=null;}
+  var startBtn=document.getElementById('btn-start');
+  var stopBtn=document.getElementById('btn-stop');
+  if(startBtn) startBtn.disabled=!modelLoaded;
+  if(stopBtn) stopBtn.disabled=true;
+  var wc=document.getElementById('webcam-container');
+  if(wc) wc.innerHTML='<div class="cam-placeholder"><div style="font-size:2rem">&#128247;</div><p style="font-size:.78rem;margin-top:6px;">Webcam fermata</p></div>';
+}
+
+function handleUpload(evt) {
+  var file=evt.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=document.getElementById('img-preview');
+    img.src=e.target.result; img.style.display='block'; uploadedImg=img;
+    document.getElementById('btn-analyze').disabled=!modelLoaded;
+    document.getElementById('status-line').textContent='Immagine caricata, premi ANALIZZA';
+    document.getElementById('coin-info-box').style.display='none';
+    lastTopClass='';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzeImg() {
+  if(!model||!uploadedImg) return;
+  document.getElementById('status-line').textContent='Analisi in corso...';
+  try {
+    var preds=await model.predict(uploadedImg);
+    var res=updateBars(preds);
+    document.getElementById('status-line').textContent='Categoria piu probabile: '+res.topClass+' ('+Math.round(res.topProb*100)+'%)';
+    showCoinInfo(res.topClass,res.topProb);
+  } catch(e){ showToast('Errore analisi immagine'); console.error(e); }
+}
+
+function calcCat() {
+  var a=parseFloat(document.getElementById('da').value)||0;
+  var b=parseFloat(document.getElementById('db').value)||0;
+  var c=parseFloat(document.getElementById('dc').value)||0;
+  var res=document.getElementById('cat-result');
+  if(a<=0||b<=0||c<=0){res.style.display='none';return;}
+  var P=4*(a+b+c);
+  res.style.display='block'; res.style.animation='none'; void res.offsetWidth; res.style.animation='slideIn .4s ease';
+  document.getElementById('cat-perim').textContent='P = '+P.toFixed(2)+' cm';
+  var num,lbl,detail,col;
+  if(P<10){num='I';lbl='CATEGORIA PRIMA';col='var(--moss)';detail='Perimetro inferiore a 10 cm - Reperto di piccole dimensioni';}
+  else if(P<20){num='II';lbl='CATEGORIA SECONDA';col='var(--bronze)';detail='Perimetro tra 10 e 20 cm - Reperto di medie dimensioni';}
+  else{num='III';lbl='CATEGORIA TERZA';col='var(--rust)';detail='Perimetro pari o superiore a 20 cm - Reperto di grandi dimensioni';}
+  document.getElementById('cat-num').textContent=num;
+  document.getElementById('cat-num').style.color=col;
+  document.getElementById('cat-lbl').textContent=lbl;
+  document.getElementById('cat-lbl').style.color=col;
+  document.getElementById('cat-detail').textContent=detail;
+}
+</script>
+</body>
+</html>
