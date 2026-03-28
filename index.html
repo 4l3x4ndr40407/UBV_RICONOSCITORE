@@ -122,6 +122,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:var(--parch);padding:10px 26px;border:1px solid var(--gold);font-family:'Cinzel',serif;font-size:.73rem;letter-spacing:1px;border-radius:1px;opacity:0;transition:all .4s ease;z-index:10000;pointer-events:none;white-space:nowrap;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:#0e0a04;}::-webkit-scrollbar-thumb{background:var(--bronze);border-radius:3px;}
+/* Aggiungi questo al tuo foglio di stile */
+.hc-icon-img {
+    width: 140px;          /* Regola questa larghezza per matchare le altre icone */
+    height: 60px;         /* Altezza fissa per creare un'area quadrata */
+    object-fit: contain;  /* Fondamentale: mantiene le proporzioni senza tagliare */
+    display: block;
+    margin: 0 auto 10px auto; 
+    background: transparent; /* Assicura che non ci siano sfondi bianchi strani */
+}
 </style>
 </head>
 <body>
@@ -150,12 +159,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
       <div class="hc-desc">In base alla grandezza scopri dove devi smistare il reperto</div>
     </div>
 
-    <div class="home-card" onclick="nav('Ricerca Parti affini')">
-      <span class="hc-icon">📍</span>
-      <span class="hc-roman">· III ·</span>
-      <div class="hc-title">Ricerca parti affini</div>
-      <div class="hc-desc">Identifica se vi sono parti affini al reperto ritrovato</div>
-    </div>
+ <div class="home-card" onclick="nav('Ricerca Parti affini'); showToast('Modulo in fase di sviluppo')">
+  <img src="vaso_UBV.png" alt="Vaso rotto" class="hc-icon-img">
+  
+  <span class="hc-roman">· III ·</span>
+  <div class="hc-title">Ricerca parti affini</div>
+  <div class="hc-desc">Identifica se vi sono parti affini al reperto ritrovato</div>
+</div>
 
     <div class="home-card" onclick="nav('team')">
       <span class="hc-icon">⚙️</span>
