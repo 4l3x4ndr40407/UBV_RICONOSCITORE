@@ -22,7 +22,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .divider-g{display:flex;align-items:center;gap:14px;margin:20px auto;max-width:320px;}
 .dg-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4;}
 .dg-gem{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);opacity:.7;box-shadow:0 0 8px var(--gold);}
-.home-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:860px;width:100%;}
+.home-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1100px;width:100%;}
 @media(max-width:680px){.home-cards{grid-template-columns:1fr;max-width:360px;}}
 .home-card{background:linear-gradient(160deg,rgba(255,255,255,.04) 0%,transparent 100%);border:1px solid rgba(139,105,20,.45);border-radius:2px;padding:36px 20px 30px;text-align:center;cursor:pointer;position:relative;overflow:hidden;transition:transform .35s,border-color .35s,box-shadow .35s;animation:fadeUp .7s ease both;}
 .home-card:nth-child(1){animation-delay:.1s;}.home-card:nth-child(2){animation-delay:.25s;}.home-card:nth-child(3){animation-delay:.4s;}
@@ -129,31 +129,42 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="home-logo-area">
-    <span class="logo-main">UBV </span>
+    <span class="logo-main">UBV</span>
     <div class="divider-g"><div class="dg-line"></div><div class="dg-gem"></div><div class="dg-line"></div></div>
     <span class="logo-sub">Fatti aiutare dall'IA nei tuoi scavi</span>
   </div>
+
   <div class="home-cards">
+    
     <div class="home-card" onclick="nav('recognizer')">
       <span class="hc-icon">🔍</span>
       <span class="hc-roman">· I ·</span>
       <div class="hc-title">Riconoscimento<br>del Reperto</div>
       <div class="hc-desc">Identifica la tipologia del tuo reperto con l'intelligenza artificiale</div>
     </div>
+
     <div class="home-card" onclick="nav('measures')">
       <span class="hc-icon">📐</span>
       <span class="hc-roman">· II ·</span>
       <div class="hc-title">Smistamento</div>
       <div class="hc-desc">In base alla grandezza scopri dove devi smistare il reperto</div>
     </div>
+
+    <div class="home-card" onclick="nav('Ricerca Parti affini')">
+      <span class="hc-icon">📍</span>
+      <span class="hc-roman">· III ·</span>
+      <div class="hc-title">Ricerca parti affini</div>
+      <div class="hc-desc">Identifica se vi sono parti affini al reperto ritrovato</div>
+    </div>
+
     <div class="home-card" onclick="nav('team')">
       <span class="hc-icon">⚙️</span>
-      <span class="hc-roman">· III ·</span>
+      <span class="hc-roman">· IV ·</span>
       <div class="hc-title">Il Nostro Progetto<br>e la Nostra Squadra</div>
-      <div class="hc-desc">Scopri la missione e il team UBV del Liceo Volta di Castel San Giovanni (pc)</div>
+      <div class="hc-desc">Scopri la missione e il team UBV<br>del Liceo Volta (PC)</div>
     </div>
-  </div>
-  <div class="home-footer">UBV · LICEO VOLTA · CASTEL SAN GIOVANNI</div>
+
+  </div> <div class="home-footer">UBV · LICEO VOLTA · CASTEL SAN GIOVANNI</div>
 </div>
 
 
@@ -241,28 +252,43 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 <div class="page parch-page" id="page-measures">
   <div class="page-header">
     <button class="back-btn" onclick="nav('home')">&#8592; INDIETRO</button>
-    <div class="page-header-title">CLASSIFICAZIONE PER SMISTAMENTO</div>
+    <div class="page-header-title">SMISTAMENTO REPERTI</div>
   </div>
   <div class="page-content">
-    <h2 class="section-title">Smistamento</h2>
-    <p class="section-intro">Inserisci le tre dimensioni in centimetri (consideralo come se fosse un paralellepipedo).<br>Il sistema calcolerà il perimetro e assegnerà la categoria di stoccaggio.</p>
+    <h2 class="section-title">SMISTAMENTO INTELLIGENTE</h2>
+    <p class="section-intro">Carica il modello del reperto e verrà smistato in una delle categorie.</p>
+    
     <div class="formula-card">
-      <p><strong>FORMULA</strong><br>P = 4 &middot; (a + b + c) &nbsp;&mdash;&nbsp; dove a, b, c sono le dimensioni del parallelepipedo</p>
-      <p style="margin-top:10px;"><strong>SOGLIE:</strong> &nbsp; P &lt; 10 &rarr; <strong style="color:var(--moss)">CAT. I</strong> &nbsp;|&nbsp; 10 &le; P &lt; 20 &rarr; <strong style="color:var(--bronze)">CAT. II</strong> &nbsp;|&nbsp; P &ge; 20 &rarr; <strong style="color:var(--rust)">CAT. III</strong></p>
+      <p><strong>LOGICA DI STOCCAGGIO:</strong></p>
+      <ul style="list-style: none; font-size: 0.85rem; margin-top: 10px; line-height: 1.6;">
+        <li><strong style="color:var(--moss)">CAT. I:</strong> 20 - 1000 cm³</li>
+        <li><strong style="color:var(--bronze)">CAT. II:</strong> 1.001 - 5.000 cm³</li>
+        <li><strong style="color:var(--rust)">CAT. III:</strong> 5.001 - 50.000 cm³</li>
+        <li><strong style="color:var(--ink)">CAT. IV:</strong> 50.001 - 100.000 cm³</li>
+      </ul>
     </div>
-    <div class="dim-grid">
-      <div class="dim-field"><label>LUNGHEZZA &middot; a</label><input type="number" id="da" placeholder="0.0" min="0" step="0.1" oninput="calcCat()"></div>
-      <div class="dim-field"><label>LARGHEZZA &middot; b</label><input type="number" id="db" placeholder="0.0" min="0" step="0.1" oninput="calcCat()"></div>
-      <div class="dim-field"><label>ALTEZZA &middot; c</label><input type="number" id="dc" placeholder="0.0" min="0" step="0.1" oninput="calcCat()"></div>
+
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; margin-bottom: 30px;">
+      <button class="anc-btn" onclick="generaSoloNumero()" style="width: 100%; max-width: 400px; background: var(--bronze);">
+        1. CARICA MODELLO 3D
+      </button>
+      <button class="anc-btn" id="btn-smista" onclick="smistaInCategoria()" disabled style="width: 100%; max-width: 400px; opacity: 0.5;">
+        2. SMISTAMENTO 
+      </button>
     </div>
-    <div style="text-align:center;">
-      <button class="anc-btn" onclick="calcCat()" style="padding:12px 40px;font-size:.82rem;">CALCOLA CATEGORIA</button>
-    </div>
-    <div class="cat-result" id="cat-result">
-      <div class="cat-num" id="cat-num">I</div>
-      <div class="cat-lbl" id="cat-lbl">CATEGORIA</div>
-      <div class="cat-detail" id="cat-detail"></div>
-      <div class="cat-perim" id="cat-perim">P = cm</div>
+
+    <div class="cat-result" id="cat-result" style="display:none;">
+        <div class="cat-lbl">Il volume del reperto è:</div>
+        <div style="display: flex; align-items: baseline; justify-content: center; gap: 10px; margin-bottom: 20px;">
+            <span class="cat-num" id="res-volume">-</span>
+            <span style="font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--rust); font-weight: bold;">cm³</span>
+        </div>
+        
+        <div id="area-risultato-finale" style="display:none;">
+            <div class="cat-lbl">DESTINAZIONE STOCCAGGIO</div>
+            <div id="res-categoria" style="font-family:'Cinzel',serif; font-weight:900; font-size:2.2rem; letter-spacing:3px;">-</div>
+            <div class="cat-detail" id="res-info" style="margin-top:15px; font-weight: bold;"></div>
+        </div>
     </div>
   </div>
 </div>
@@ -296,7 +322,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
     </div>
     <div class="info-block">
       <div class="info-h">Il Sistema</div>
-      <p class="info-p">L'applicazione e' composta da tre moduli integrati:<br><br>Il <em>Riconoscitore Numismatico</em>, basato su un modello di visione artificiale, nel nostro caso realizzato con Teachable Machine di Google, che classifica le monete in quattro categorie: greche, romane, medievali e altre.<br><br>Il <em>Classificatore Morfologico</em>, che calcola il perimetro del reperto, approssimandolo a un parallelepipedo, e gli viene assegnato a quale categoria esso dovrà essere inserito durante la fase dello stoccaggio, essendo che molto spesso mettendo insieme reperti di grandi dimensioni con quelle di piccole dimensioni, si rischia di creare danni oppure di non trovare determinati pezzi</p>
+      <p class="info-p">L'applicazione e' composta da tre moduli integrati:<br><br>Il <em>Riconoscitore Numismatico</em>, basato su un modello di visione artificiale, nel nostro caso realizzato con Teachable Machine di Google, che classifica le monete in quattro categorie: greche, romane, medievali e altre.<br><br>Il <em>Classificatore Morfologico</em>, Il quale grazie a uno scanner 3D si ricava il volume e in base ad esso, viene assegnato al reperto la categoria dove  dovrà essere inserito durante la fase dello stoccaggio, essendo che molto spesso mettendo insieme reperti di grandi dimensioni con quelle di piccole dimensioni, si rischia di creare danni oppure di non trovare determinati pezzi</p>
     </div>
     <div class="info-block">
       <div class="info-h">Tecnologie Utilizzate</div>
@@ -490,6 +516,66 @@ function calcCat() {
   document.getElementById('cat-lbl').style.color=col;
   document.getElementById('cat-detail').textContent=detail;
 }
+
+let volumeCorrente = 0; // Questa riga deve stare FUORI dalle funzioni
+
+function generaSoloNumero() {
+    // 1. Genera il numero
+    volumeCorrente = Math.floor(Math.random() * (99999 - 20 + 1)) + 20;
+    
+    // 2. Scrive il numero nell'elemento con ID "res-volume"
+    const displayVolume = document.getElementById('res-volume');
+    if(displayVolume) {
+        displayVolume.textContent = volumeCorrente.toLocaleString();
+    }
+    
+    // 3. Mostra il contenitore dei risultati e nasconde la vecchia categoria
+    document.getElementById('cat-result').style.display = 'block';
+    document.getElementById('area-risultato-finale').style.display = 'none';
+    
+    // 4. Attiva il secondo bottone
+    const btnSmista = document.getElementById('btn-smista');
+    btnSmista.disabled = false;
+    btnSmista.style.opacity = "1";
+    
+    
+}
+
+function smistaInCategoria() {
+    if (volumeCorrente === 0) return;
+
+    let cat = "";
+    let info = "";
+    let colore = "";
+
+    if (volumeCorrente <= 100) {
+        cat = "CATEGORIA I";
+        info = "Piccoli reperti (es. monete)";
+        colore = "var(--moss)";
+    } else if (volumeCorrente <= 5000) {
+        cat = "CATEGORIA II";
+        info = "Reperti medi (es. lucerne)";
+        colore = "var(--bronze)";
+    } else if (volumeCorrente <= 50000) {
+        cat = "CATEGORIA III";
+        info = "Grandi reperti (es. anfore)";
+        colore = "var(--rust)";
+    } else {
+        cat = "CATEGORIA IV";
+        info = "Reperti massicci (es. statue)";
+        colore = "var(--ink)";
+    }
+
+    const resCat = document.getElementById('res-categoria');
+    resCat.textContent = cat;
+    resCat.style.color = colore;
+    document.getElementById('res-info').textContent = info;
+    
+    // Mostra la parte finale
+    document.getElementById('area-risultato-finale').style.display = 'block';
+
+}
 </script>
+
 </body>
 </html>
